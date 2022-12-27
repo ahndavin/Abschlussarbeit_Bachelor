@@ -1,0 +1,86 @@
+\chapterpage\chapter{Methoden zur Ausreißererkennung}
+        Methoden und Umsetzung
+    
+        \section{Statistikbasierte Methoden zur Ausreißererkennung}
+            Die statistikbasierte Ausreißererkennung ist eine frühe Methode der Ausreißererkennung. Die Definition eines anormalen Datens ist hier „ein Wert, der als teilweise oder vollständig unterschiedlich von der Wahrscheinlichkeitsverteilung der meisten Werten angesehen wird“ \cite{Anscombe60}. In diesem Kapitel wird zwei Methoden zur Erkennung von Ausreißern auf der Grundlage von Statistiken beschrieben.
+            
+            \subsection{Boxplot-Rule}
+                Die Boxplot-Rule (Abbildung 9) ist die einfachste statistische Technik, die verwendet wird, um Ausreißer in univariaten und multivariaten Daten zu erkennen. Es verwendet Informationen wie unteres Quartil (Q1), Median (Median) und oberes Quartil (Q3), um diese Daten zu visualisieren.
+                
+                \begin{figure}[h]
+                    \centering
+                    \includegraphics[scale=0.25]{images/cat.jpg}
+                    \caption{Ein Boxplot-Beispiel für univariate Daten}
+                    \label{fig:IQR}
+                \end{figure}
+                
+                Der für die Ausreißererkennung definierte Interquartile Range (IQR) ist die Differenz zwischen dem oberen Quartil (Q3) und dem unteren Quartil (Q1). Datenpunkte außerhalb des Bereichs zwischen $Q1-1,5*IQR$ und $Q3+1,5*IQR$ werden als Ausreißer erkannt. Als IQR-Koeffizient wird der Wert 1,5 eingestellt, da der oben berechnete Bereich $\pm3\sigma$ auf Gaußschen Daten entspricht, die 99,3\% der Beobachtungen abdecken \cite{Chandola09}. Die Formel in \ref{eqn:IQR} ist ein mathematischer Ausdruck von IQR, Obergrenze und Untergrenze.
+                
+                \begin{equation}
+                    \label{eqn:IQR}
+                    \begin{aligned}
+                        \text{IQR} & = Q3 - Q1 \\
+                        \text{Untergrenze} & = Q1 - 1.5 * IQR \\
+                        \text{Obergrenze} & = Q3 + 1.5 * IQR
+                    \end{aligned}
+                \end{equation}
+                
+            \subsection{Z-Score}
+                Der Z-Score ist eine häufig verwendete Metrik in der Statistik, die misst, wie weit ein beobachteter Wert vom Mittelwert entfernt ist. Im allgemeinen Fall wird es verwendet, wenn der verwendete Datensatz einer Gaußschen Verteilung folgt. Die Gaußsche Verteilung wird auch als Normalverteilung bezeichnet und wenn die Datenpunkte glockenförmig verteilt sind, spricht man von einer Gaußschen Verteilung. Z-Score ist ein Wert, der misst, wie weit jeder Wert in dieser Gaußschen Verteilung vom Durchschnitt abweicht. Diese statistische Technik wird wie folgt unter Verwendung des beobachteten Werts, Mittelwerts und der Standardabweichung berechnet.
+
+                Z-Score = (Beobachtungen - Mittelwert) / Standardabweichung, Diagramm
+
+                Im Bereich der Ausreißererkennung wird ein Datenpunkt im Allgemeinen als Ausreißer definiert, wenn der Z-Score-Wert größer oder kleiner als $\pm1,96$ ist \cite{Killourhy09}. Dies liegt daran, dass die Datenpunkte außerhalb dieses Z-Score-Werts ungefähr 5\% des gesamten Datensatzes ausmachen.
+                
+                Wie oben erwähnt, „wird es im Allgemeinen verwendet, wenn der verwendete Datensatz einer Gaußschen Verteilung folgt“, zeigen allgemeine statistische Techniken eine optimale Leistung, wenn sie auf einen Datensatz angewendet werden, der einer Gaußschen Verteilung folgt. Wenn ein Datensatz nicht der Gaußschen Verteilung folgt, wird er in eine Verteilung geändert, die der Gaußschen Verteilung nahe kommt, indem eine Log-Funktion auf den Datensatz angewendet wird, so dass allgemeine statistische Techniken angewendet werden können.
+                    
+                
+        \section{Clustering-basierte Methoden zur Ausreißererkennung}
+            Das Ziel des Daten-Clustering, auch bekannt als Cluster-Analyse, besteht darin, die natürliche(n) Gruppierung(en) einer Reihe von Mustern, Punkten oder Objekten zu entdecken \cite{Jain10}. Der cluster-basierte Algorithmus wird je nach Fall in drei Typen unterteilt und Ausreißer gemäß jedem Fall wie folgt definiert.
+
+                1. Normalwerte gehören zu einem oder mehreren Clustern, Ausreißer gehören zu keinem Cluster.
+                    Nachdem Cluster in den Datensatz gefunden und dazu gehörte Datenpunkte entfernt wurden, werden die verbleibenden Datenpunkte als Ausreißer behandelt.
+
+                2. Bei geringem Abstand zum nächsten Schwerpunkt des Clusters handelt es sich um einen Normalwert, bei großem Abstand um einen Ausreißer.
+                    Nachdem das Clustering durchgeführt wurde, wird der Abstand zwischen der Mitte eines Clusters und eine zu diesem Cluster gehörte Datenpunkt als „Ausreißerwert“ definiert.
+
+                3. Normale Datenpunkte gehören zu großen oder dichten Clustern und Ausreißer gehören zu kleinen oder spärlichen Clustern.
+                    Die Größe oder Dichte des Clusters ist ein Kriterium dafür, ob die dazu gehörte Datenpunkte sich um Ausreißer handeln oder nicht.
+
+            In diesem Abschnitt wird der k-Means-Algorithmus für den zweiten Fall beschrieben.
+            
+            \subsection{k-means Clustering}
+                K-means Clustering은 주어진 데이터세트에서 각 데이터포인트를 가장 가까운 군집으로 배정하는 군집화 알고리즘이다. 하이퍼파라미터로 최대반복횟수 L, 군집의 중심점의 수렴을 판단하기 위한 Relative tolerance e, 군집의 갯수 k, 각 군집의 초기중심값 u_j를 k개 설정해야 한다. K-means 알고리즘은 아래와 같은 과정으로 작동한다.
+                
+                1. 최대 반복 횟수 L, tolerance e, 군집의 갯수 k, 그리고 주어진 입력 데이터 중 임의의 데이터포인트 u_j를 선택한다. 이는 군집의 초기중심점으로 설정된다.
+                3. t번째 스텝에서의 중심점을 u(t)라 하자. 각 데이터포인트와 중심점들 u_j과의 거리를 계산한다. 가장 가까운 중심점 u_l에 해당하는 군집에 해당 데이터포인트를 배정한다. 이때 거리는 유클리드 거리를 사용한다. 식 1.1.1은 해당 단계의 수학적 표현이다.
+                4. 각 군집에 속한 데이터포인트들의 평균거리를 구해 군집의 중심점을 업데이트한다.
+                5. 군집의 중심점이 수렴할 때까지 2, 3의 과정을 반복한다. 즉, 군집의 중심값이 변하지 않을 때까지 반복한다. 만약 반복 횟수 t가 최대반복횟수 L보다 크거나 같으면 반복을 멈춘다.
+
+                K-means 알고리즘은 수렴할 때까지 계속해서 입력 데이터의 군집을 재구성합니다. 이는 일반적으로 입력 데이터의 군집 간 유사도가 최대가 될 때 수렴할 것입니다.
+
+                K-means 알고리즘은 실제 입력 데이터가 어떤 군집 구조를 가지고 있는지 알고 있지 않기 때문에, 적절한 k값을 선택하는 것이 중요합니다. 일반적으로 입력 데이터의 군집 개수를 추정할 수 있는 기준을 사용하거나, 여러 개의 k값을 시도해본 후 성능이 최대가 되는 k값을 선택하기도 합니다.
+
+                K-means 알고리즘은 실제 군집이 원형이거나 일정한 크기인 경우에 좋은 성능을 낼 수 있습니다. 그러나 군집이 원형이 아니거나 크기가 다른 경우에는 성능이 저하될 수 있습니다.
+
+                K-means 알고리즘은 이상치 탐지를 통한 미세먼지 예측 모델의 성능을 측정할 때 사용할 수 있습니다. 이상치는 주어진 데이터셋에서 기준값을 초과하는 값을 의미합니다. 이상치 탐지는 입력 데이터에서 이상한 값을 찾아내기 위해 사용됩니다.
+            
+                
+                kmeas++
+                데이터 포인트 중에서 무작위로 균일하게 하나의 중심을 선택합니다.
+                아직 선택되지 않은 각 데이터 포인트 x 에 대해 x 와 이미 선택된 가장 가까운 중심 사이의 거리인 D( x )를 계산합니다.
+                점 x 가 D( x )^2 에 비례하는 확률로 선택 되는 가중 확률 분포를 사용하여 새 데이터 점 하나를 새 중심으로 무작위로 선택 합니다.
+                k개의 센터가 선택 될 때까지 2단계와 3단계를 반복 합니다.
+                초기 중심이 선택되었으므로 표준 k- 평균 클러스터링 을 사용하여 진행합니다.
+                
+            \subsection{Density-Based Spatial Clustering of Applications with Noise}
+                Density-based spatial clustering of applications with noise
+                
+        \section{Dichtebasierte Methoden zur Ausreißererkennung}
+            Dichte-basiert
+            
+            \subsection{Isolation Forest}
+                Isolation Forest
+                
+            \subsection{Local Outlier Factor}
+                Local Outlier Factor
