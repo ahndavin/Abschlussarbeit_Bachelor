@@ -1,0 +1,42 @@
+3.2 CLUSTER-BASIERTE METHODEN ZUR AUSREISSERERKENNUNG
+    Das Ziel des Daten-Clustering, auch bekannt als Cluster-Analyse, besteht darin, die natürliche(n) Gruppierung(en) einer Reihe von Mustern, Punkten oder Objekten zu entdecken [Jai10]. Der cluster-basierte Algorithmus wird je nach Fall in drei Typen unterteilt und Ausreißer gemäß jedem Fall wie folgt definiert.
+        1. Normalwerte gehören zu einem oder mehreren Clustern, Ausreißer zu keinem Cluster.
+        Nachdem Cluster in den Datensatz gefunden und dazu gehörte Datenpunkte entfernt wurden, werden die verbleibenden Datenpunkte als Ausreißer behandelt.
+        2. Bei geringem Abstand zum nächsten Schwerpunkt des Clusters handelt es sich um einen Normalwert, bei großem Abstand um einen Ausreißer.
+        Nachdem das Clustering durchgeführt wurde, wird der Abstand zwischen der Mitte eines Clusters und eine zu diesem Cluster gehörte Datenpunkt als „Ausreißerwert“ definiert.
+        3. Normale Datenpunkte gehören zu großen oder dichten Clustern und Ausreißer zu kleinen oder spärlichen Clustern.
+        Die Größe oder Dichte des Clusters ist ein Kriterium dafür, ob die dazu gehörte Datenpunkte sich um Ausreißer handeln oder nicht.
+    In diesem Abschnitt wird der K-Means-Algorithmus für den zweiten Fall beschrieben.
+
+    3.2.1 K-Means-Clustering (K-Means)
+        K-Means-Clustering ist ein Clustering-Algorithmus, der jeden Datenpunkt dem von diesem Datenpunkt nächstgelegenen Cluster zuweist [Llo82]. Als Hyperparameter sollten die maximale Anzahl der Iterationen L, die Toleranz ε, die Anzahl der Cluster K und der anfängliche Mittelpunktswert μ(0)j, j = 1,..., K gesetzt werden. Der K-Means-Clustering arbeitet im folgenden Prozess.
+            1. Die maximale Anzahl von Iterationen L, Toleranz ε, Anzahl von Clustern K und beliebige Datenpunkte μj werden eingestellt. Diese Datenpunkte werden als anfängliche Schwerpunkte des Clusters festgelegt.
+
+            2. Sei μ(t)j der Schwerpunkt eines Clusters im t-ten Schritt. Zunächst wird für alle Datenpunkte xn der Abstand zu jedem Schwerpunkt μj berechnet. Jeder Datenpunkt gehört zu dem Cluster mit dem nächstgelegenen Schwerpunkt. Hier verwendet die Distanz die euklidische Distanz. Das heißt, wenn
+                        (3.3)
+            ist der Cluster von Datenpunkten xn gleich k.
+
+            3. Um den Schwerpunkt jedes Clusters zu aktualisiert, wird der durchschnittliche Abstand der Datenpunkte innerhalb des Clusters berechnet. Für einen Cluster k wird der Schwerpunkt bei Iteration t + 1 wird wie folgt aktualisiert:
+                        (3.4)
+            
+            4. Wenn t > L oder ∥μ(t+1)k − μ(t) k ∥ < ε, endet der Algorithmus, andernfalls geht der Algorithmus zurück zu Schritt 2 und wiederholt.
+            
+            Abbildung 3.3 visualisiert das obige Verfahren
+                        Abbildung 3.3: Verfahren des K-Means-Cluste
+
+            Der K-Means-Clustering rekonstruiert kontinuierlich die Cluster des Datensatzes, bis jeder Schwerpunkt gegen einen bestimmten Wert konvergiert. Es konvergiert im Allgemeinen, wenn die Ähnlichkeit zwischen Clustern in einem Datensatz maximal ist.
+
+            Beim K-Means-Clustering ist es wichtig, eine geeignete Anzahl von Clustern K auszuwählen, da man möglicherweise nicht weiß, welche Art von Clustering-Struktur der tatsächliche Datensatz hat. Das heuristische Verfahren kann verwendet werden, wenn der Wert K bei der Visualisierung des Datensatzes intuitiv erkannt werden kann, aber im Allgemeinen wird ein Verfahren verwendet, das den Wert K im Datensatz schätzen kann. Nach dem Auswählen des Wertes K, ist es ebenfalls ein wichtiger Faktor beim Verbessern der Zeitkomplexität und Leistung des Algorithmus, die anfängliche Schwerpunkte des Clusters auszuwählen. In dieser Arbeit werden die Elbow-Methode, eine der am häufigsten verwendeten Techniken zum Schätzen der Anzahl von Clustern, und K-Means++ [AV06], eine der Methoden zum Ermitteln des anfänglichen Schwerpunkts von Clustern, erläutert.
+
+                Elbow-Methode ist eine Technik, die die SSE = ∑n i=1(yi − ˆyi )2 (Sum of squred error) für jede Anzahl von Clustern berechnet und visualisiert und dann die Anzahl der Cluster auswählt, die dem Teil (Elbow) entspricht, der eine sanfte Neigung zeigt, nachdem er eine steile Neigung gezeigt hat.
+                            Abbildung 3.4: Elbow-Methode
+
+                K-Means++ folgt diesem Verfahren:
+                        1. Auswählen einen beliebigen Punkt aus den Datenpunkten. Dieser Punkt ist dann erster Schwerpunkt.
+                        2. Jeder nicht ausgewählte Datenpunkt berechnet die Entfernung zum nächstgelegenen Schwerpunkt.
+                        3. Der t-te Schwerpunkt wird gemäß der Wahrscheinlichkeit proportional zur Entfernung von jedem Punkt ausgewählt. Das heißt, ein Datenpunkt, der so weit wie möglich von einem bereits festgelegten Schwerpunkt entfernt platziert ist, wird als nächster Schwerpunkt festgelegt.
+                        4. Wiederholen die Schritte 2 und 3, bis K Schwerpunkte ausgewählt wurden.
+
+                    K-Means++ erfordert zusätzliche Zeit, um den Anfangswert von K-Means-Clustering festzulegen, aber der gewählte Anfangswert ermöglicht es K-Means-Clustering, die optimale Lösung in O(log K)-Zeit zu finden.
+                
+                Clustering-Algorithmen, einschließlich K-Means, verwenden Distanz-basierte Maße, um die Ähnlichkeit zwischen Datenpunkten zu bestimmen. Daher wird für Datensätze mit unterschiedlichen Maßeinheiten für unterschiedliche Features empfohlen, die Daten auf einen Mittelwert von 0 und eine Standardabweichung von 1 zu standardisieren.

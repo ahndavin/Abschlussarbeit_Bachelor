@@ -63,29 +63,50 @@
                     4. Wenn t > L oder u-k, endet der Algorithmus, andernfalls geht der Algorithmus zurück zu Schritt 2 und wiederholt.
                 
 
-                K-means 알고리즘은 중심점들이 각각 어떤 값에 수렴할 때까지 계속해서 데이터세트의 군집을 재구성한다. 이는 일반적으로 데이터세트의 군집 간 유사도가 최대가 될 때 수렴할 것이다.
+                Der K-Means-Clustering rekonstruiert kontinuierlich die Cluster des Datensatzes, bis jeder Schwerpunkt gegen einen bestimmten Wert konvergiert. Es konvergiert im Allgemeinen, wenn die Ähnlichkeit zwischen Clustern in einem Datensatz maximal ist.
 
-                이 알고리즘의 문제점은
-                kmeas++
-                데이터 포인트 중에서 무작위로 균일하게 하나의 중심을 선택합니다.
-                아직 선택되지 않은 각 데이터 포인트 x 에 대해 x 와 이미 선택된 가장 가까운 중심 사이의 거리인 D( x )를 계산합니다.
-                점 x 가 D( x )^2 에 비례하는 확률로 선택 되는 가중 확률 분포를 사용하여 새 데이터 점 하나를 새 중심으로 무작위로 선택 합니다.
-                k개의 센터가 선택 될 때까지 2단계와 3단계를 반복 합니다.
-                초기 중심이 선택되었으므로 표준 k- 평균 클러스터링 을 사용하여 진행합니다.
+                K-Means-Clustering은 실제 데이터세트가 어떤 군집 구조를 가지고 있는지 모르기 때문에, 적절한 K값을 선택하는 것이 중요하다. 데이터세트를 시각화 했을 때 직관적으로 군집의 개수를 인식할 수 있는 경우엔 휴리스틱 방법을 사용할 수 있지만, 그렇지 않은 일반적인 경우엔 데이터세트의 군집 개수를 추정할 수 있는 method를 사용한다. 또한 군집의 개수를 선택했으면 그 군집의 초기 중심점을 선택하는 것 또한 해당 알고리즘의 시간복잡도와 성능의 향상에 중요한 요소이다. 이 글에서는 군집의 개수를 추정할 수 있는 기법 중에 가장 자주 쓰이는 elbow method와 군집의 초기 중심점을 찾는 방법 중 하나인 K-Means++에 대해 설명된다.
+                
+                Die Elbowmethode ist eine Technik, die die SSE(sum of squred error) für jede Anzahl von Clustern berechnet und visualisiert und dann die Anzahl der Cluster auswählt, die dem Teil (elbow) entspricht, der eine sanfte Neigung zeigt, nachdem er eine steile Neigung gezeigt hat.
 
-                K-means 알고리즘은 실제 데이터세트가 어떤 군집 구조를 가지고 있는지 알고 있지 않기 때문에, 적절한 k값을 선택하는 것이 중요합니다. 일반적으로 데이터세트의 군집 개수를 추정할 수 있는 기준을 사용하거나, 여러 개의 k값을 시도해본 후 성능이 최대가 되는 k값을 선택하기도 합니다.
+                
+                \begin{equation}
+                    \label{eqn:SSE}
+                    \text{SSE}=\sum_{i=1}^{n}(y_i-\hat{y_i})^2    
+                \end{equation}
+
+                K-Means++의 Prozess는 아래와 같다:
+                    1. Auswählen einen beliebigen Punkt aus den Datenpunkten. Dieser Punkt ist dann erster Schwerpunkt.
+                    2. Jeder nicht ausgewählte Datenpunkt berechnet die Entfernung zum nächstgelegenen Schwerpunkt.
+                    3. Der t-te Schwerpunkt wird gemäß der Wahrscheinlichkeit proportional zur Entfernung von jedem Punkt ausgewählt. Das heißt, ein Datenpunkt, der so weit wie möglich von einem bereits festgelegten Schwerpunkt entfernt platziert ist, wird als nächster Schwerpunkt festgelegt.
+                    4. Wiederholen die Schritte 2 und 3, bis K Schwerpunkte ausgewählt wurden.
+
+                K-Means++는 알고리즘은 기 값을 설정하기 위해 추가적인 시간을 필요로 하지만, 이후 선택된 초기 값은 이후 K-Means-Clustering이 $O(log K)$의 시간 동안 최적의 해를 찾는 것을 보장한다.
+                
                 
 
-                kmeans를 포함한 클러스터링 알고리즘은 거리 기반 측정을 사용하여 데이터 포인트 간의 유사성을 결정하므로 기능마다 다른 측정 단위를 가진 데이터세트에는 평균이 0이고 표준 편차가 1이 되도록 데이터를 표준화하는 것이 좋습니다.
+                kmeans를 포함한 클러스터링 알고리즘은 거리 기반 측정을 사용하여 데이터 포인트 간의 유사성을 결정하므로 기능마다 다른 측정 단위를 가진 데이터세트에는 평균이 0이고 표준 편차가 1이 되도록 데이터를 표준화하는 것이 좋다.
                 
             \subsection{Density-Based Spatial Clustering of Applications with Noise}
                 Density-based spatial clustering of applications with noise
                 
         \section{Dichtebasierte Methoden zur Ausreißererkennung}
-            Dichte-basiert
+            Dichtebasierte Anomalieerkennungstechniken schätzen die Dichte der Nachbarschaft jedes Datenpunkts. Ein Datenpunkt, der in einer Nachbarschaft mit geringer Dichte liegt, wird als anomal deklariert, während einn Datenpunkt, der in einer dichten Nachbarschaft liegt, als normal deklariert wird.
             
+            In den beiden folgenden Abschnitten werden zwei dichtebasierte Methoden, Local Outlier Factor und Isolation Forest, beschrieben.
+
+            \subsection{Local Outlier Factor}
+                LOF gibt Informationen darüber aus, wie weit jeder Datenpunkt von den anderen entfernt ist. Das wichtigste Merkmal von LOF besteht darin, Ausreißer nicht unter Berücksichtigung aller Daten als Ganzes zu beurteilen, sondern Ausreißer aus lokaler Sicht anhand von Daten rund um den Datenpunkt zu beurteilen. Zum intuitiven Verständnis ist ein Beispiel wie folgt:
+
+                \begin{figure}[h] % muss eigenes Bild!
+                    \centering \includegraphics[scale=0.5]{images/LOF_2d.png}
+                    \caption{ein Datensatz in 2 Dimension \cite{Breunig00}}
+                    \label{fig:LOF_2d}
+                \end{figure}
+
+                Hier existieren die Gruppe C_1 mit niedriger Dichte, die Gruppe C_2 mit hoher Dichte und die Ausreißer O_1 und O_2. Die meisten Algorithmen zur Erkennung von Ausreißern vergleichen jeden Datenpunkt mit den gesamten Daten, um festzustellen, ob es sich um einen Ausreißer handelt oder nicht. Solche Algorithmen berücksichtigen O_2 in der Abbildung\ref{fig:LOF_2d} nicht als Ausreißer. Da der Abstand zwischen C_2 und O_2 ähnlich dem Abstand zwischen Datenpunkten der Gruppe C_1 ist, ist es schwierig, O_2 insgesamt gesehen als Ausreißer zu betrachten. Um diese Nachteile zu überwinden, zielt LOF darauf ab, den Grad der Ausreißer unter Verwendung lokaler Informationen anzuzeigen.
+
             \subsection{Isolation Forest}
                 Isolation Forest
                 
-            \subsection{Local Outlier Factor}
-                Local Outlier Factor
+            
