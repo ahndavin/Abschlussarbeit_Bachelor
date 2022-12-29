@@ -91,21 +91,74 @@
                 Density-based spatial clustering of applications with noise
                 
         \section{Dichtebasierte Methoden zur Ausreißererkennung}
-            Dichtebasierte Anomalieerkennungstechniken schätzen die Dichte der Nachbarschaft jedes Datenpunkts. Ein Datenpunkt, der in einer Nachbarschaft mit geringer Dichte liegt, wird als anomal deklariert, während einn Datenpunkt, der in einer dichten Nachbarschaft liegt, als normal deklariert wird.
+            Dichtebasierte Anomalieerkennungstechniken schätzen die Dichte der Nachbarschaft jedes Datenpunkts. Ein Datenpunkt, der in einer Nachbarschaft mit geringer Dichte liegt, wird als anomal deklariert, während einn Datenpunkt, der in einer dichten Nachbarschaft liegt, als normal deklariert wird. In den beiden folgenden Abschnitten werden zwei dichtebasierte Methoden, Local Outlier Factor und Isolation Forest, beschrieben.
             
-            In den beiden folgenden Abschnitten werden zwei dichtebasierte Methoden, Local Outlier Factor und Isolation Forest, beschrieben.
-
-            \subsection{Local Outlier Factor}
-                LOF gibt Informationen darüber aus, wie weit jeder Datenpunkt von den anderen entfernt ist. Das wichtigste Merkmal von LOF besteht darin, Ausreißer nicht unter Berücksichtigung aller Daten als Ganzes zu beurteilen, sondern Ausreißer aus lokaler Sicht anhand von Daten rund um den Datenpunkt zu beurteilen. Zum intuitiven Verständnis ist ein Beispiel wie folgt:
+            \subsection{Local Outlier Factor (LOF)}
+                Local Outlier Factor gibt Informationen darüber aus, wie weit jeder Datenpunkt von den anderen entfernt ist. Das wichtigste Merkmal von LOF besteht darin, Ausreißer nicht unter Berücksichtigung aller Daten als Ganzes zu beurteilen, sondern Ausreißer aus lokaler Sicht anhand von Daten rund um den Datenpunkt zu beurteilen. Zum intuitiven Verständnis ist ein Beispiel wie folgt:
 
                 \begin{figure}[h] % muss eigenes Bild!
-                    \centering \includegraphics[scale=0.5]{images/LOF_2d.png}
-                    \caption{ein Datensatz in 2 Dimension \cite{Breunig00}}
+                    \centering \includegraphics[scale=0.25]{images/LOF_2d.png}
+                    \caption{Ein Datensatz in 2 Dimension \cite{Breunig00}}
                     \label{fig:LOF_2d}
                 \end{figure}
 
-                Hier existieren die Gruppe C_1 mit niedriger Dichte, die Gruppe C_2 mit hoher Dichte und die Ausreißer O_1 und O_2. Die meisten Algorithmen zur Erkennung von Ausreißern vergleichen jeden Datenpunkt mit den gesamten Daten, um festzustellen, ob es sich um einen Ausreißer handelt oder nicht. Solche Algorithmen berücksichtigen O_2 in der Abbildung\ref{fig:LOF_2d} nicht als Ausreißer. Da der Abstand zwischen C_2 und O_2 ähnlich dem Abstand zwischen Datenpunkten der Gruppe C_1 ist, ist es schwierig, O_2 insgesamt gesehen als Ausreißer zu betrachten. Um diese Nachteile zu überwinden, zielt LOF darauf ab, den Grad der Ausreißer unter Verwendung lokaler Informationen anzuzeigen.
+                Hier existieren die Gruppe $C_1$ mit niedriger Dichte, die Gruppe $C_2$ mit hoher Dichte und die Ausreißer $O_1$ und $O_2$. Die meisten Algorithmen zur Erkennung von Ausreißern vergleichen jeden Datenpunkt mit den gesamten Daten, um festzustellen, ob es sich um einen Ausreißer handelt oder nicht. Solche Algorithmen berücksichtigen $O_2$ in der Abbildung \ref{fig:LOF_2d} nicht als Ausreißer. Da der Abstand zwischen $C_2$ und $O_2$ ähnlich dem Abstand zwischen Datenpunkten der Gruppe $C_1$ ist, ist es schwierig, $O_2$ insgesamt gesehen als Ausreißer zu betrachten. Um diese Nachteile zu überwinden, zielt LOF darauf ab, den Grad der Ausreißer unter Verwendung lokaler Informationen anzuzeigen. Die sechs mathematischen Definitionen, die in \cite{Breunig00} verwendet werden, sind eine gute Möglichkeit, die Funktionsweise des Algorithmus zu verstehen. In diesem Definition wird $o$, $p$, $q$ verwendet, um Datenpunkte in einem Datensatz $C$ zu bezeichnen.
+                
+                \begin{description}
+                    \item[Definition 1:]{(die Distanz zwischen den Objekten $p$ und $q$)
+                    
+                        Hier wird die Notation $d(p, q)$ verwendet, um den Abstand zwischen Datenpunkte $p$ und $q$ zu bezeichnen.
+                    }
+                    
+                    \item[Definition 2:]{($k$-distance eines Objekts $p$)
+                    
+                        $k$-distance($p$) ist die Distanz von einem bestimmten Datenpunkt $p$ zum $k$-ten nächsten Nachbarn.
+                    }
+                    
+                    \item[Definition 3:]{($k$-distance Nachbarschaft eines Objekts $p$)
+                    
+                        Die Anzahl der in der $k$-distance($p$) enthaltenen Daten wird als $N_{k\text-distance(p)}(p)=\{q\in C \backslash \{p\}\mid d(p, q)\leq k\text-distance(p)\}$, ausgedrückt, und die Notation wird mit der Abkürzung $N_k(p)$ vereinfacht.
+    
+                        Man kann vielleicht so denken, dass der Wert von $N_k(p)$ $k$ ist, weil $k$ ausgewählt sind. Wenn der Abstand jedoch kontinuierlich ist, gibt es genau $3$ Nachbarn innerhalb des $3$-distance, aber wenn der Abstand diskret ist und es mehr als einen Datenpunkt im gleichen Abstand gibt, kann die Anzahl von $N_k(p)$ größer als $k$ sein.
+                    }
+                    
+                    \item[Definition 4:]{(Erreichbarkeitsdistanz eines Objekts $p$ in Bezug auf Objekt $o$)
+                    
+                    Sei $k$ eine natürliche Zahl, dann definiert die Erreichbarkeitsdistanz von einem Datanpunkt $p$ zu einem anderem Datenpunkt $o$ als
 
+                    \begin{equation}
+                        \label{eqn:SSE}
+                        reach \text-dist_k(p, o)=max\{k\text - distance(o), d(p, o)\}.
+                    \end{equation}
+                    
+                    Abbildung 2 zeigt das Konzept der Erreichbarkeitsdistanz für $k = 3$. Wenn der Datenpunkt $p_2$ in Abbildung 2 weit von $o$ entfernt ist, ist die Erreichbarkeitsdistanz zwischen ihnen intuitiv einfach die tatsächliche Distanz. Wenn es jedoch "genug nah" ist, wie $p_1$ in Abbildung 2, wird die Distanz durch $k\text - distance(o)$ ersetzt. Diese Idee dient als Puffer, um sicherzustellen, dass der Wert von $d(p, o)$ für alle $p$ in der Nähe von $o$ nicht zu klein wird, da später die Dichte durch dieser $reach \text - distance$ miteinander verglichen wird. Die Stärke dieses Effekts kann durch den Parameter $k$ gesteuert werden.
+                    }
+                    
+                    \item[Definition 5:]{(lokale Erreichbarkeitsdichte eines Objekts $p$)
+                        Die lokale Erreichbarkeitsdichte (local reachability density, lrd) für den Datenpunkt p ist gegeben durch:
+                        \begin{equation}
+                            lrd_{k}(p) = \frac{|N_{k}(p)|}{\displaystyle \sum_{o \in N_{k}(p)}reach \text - dist_{k}(p, o)}
+                        \end{equation}
+                        Die Formel zeigt der Kehrwert des Mittelwerts von $reach \text - dist_{k}(p, o)$ für Datenpunkt $p$. Diese sagt uns aus, wie weit die Nachbarn um den Datenpunkt $p$ entfernt sind, also wie dicht sie um den Datenpunkt $p$  existieren.
+                    }
+                    
+                    \item[Definition 6:]{((lokaler) Ausreißerfaktor eines Objekts $p$)
+                    
+                        $LOF_k(p)$ ist der Durchschnitt der Ratio(oder Verhältnis?) von Dichte $lrd_k(o), \; o \in N_k(p)$ und Dichte $lrd_k(p)$. Die Formel lautet wie folgt:
+
+                        \begin{equation}
+                            \label{eqn:LOF_k(p)}
+                            LOF_k(p)=\frac{\displaystyle\sum_{o\in N_k(p)}{\frac{lrd_k(o)}{lrd_k(p)}}}{|N_k(p)|}
+                        \end{equation}
+
+                        Der Wert von $LOF_k(p)$ kann in drei Fälle unterteilt werden: (i) wenn $lrd_k(p)$ und $lrd_k(o)$ ähnlich sind, liegt die $LOF_k(p)$ nahe bei $1$; (ii) wenn $lrd_k(p)$ kleiner als $lrd_k(o)$ ist, die $LOF_k(p)$ ist größer als $1$; und (iii) wenn $lrd_k(p)$ größer als $lrd_k(o)$ ist, muss die $LOF_k(p)$ kleiner als $1$ sein. Da die Dichte zwischen den beiden Datenpunkten relativ verglichen wird, wird auf diese Weise die $reach \text-dist$, die als ein Puffer fungiert, in Definition 4 definiert. Andernfalls kann die Ratio bei Datenpunkten, die sich an extrem dichten Ort befinden, aufgrund winziger Unterschiede sehr empfindlich werden.
+
+                        Datenpunkte mit einer geringeren lokalen Dichte als ihre Nachbarn werden als Ausreißer angenommen, daher kann der Wert größer als 1 als Threshold angewendet werden. Also, der Wert dieser $LOF_k(p)$ kann als "outlier score" angesehen werden, der angibt, wie nah p an einem Ausreißer liegt.
+                    }
+                \end{description}
+
+                지금까지 LOF의 Funktionsweise에 대해 알아봤다. LOF의 장점으로는, 굉장히 밀집된 클러스터에서 조금만 떨어져 있어도 이상치로 탐지해준다는 점입니다. 단점은 하이퍼파라미터 값인 k를 몇으로 할지인 고질적인 문제가 있다. 그러나 경험적으로 k=10-20 \cite{Breunig00} 정도로 하는것이 좋다고한다. 그리고 threshold를 얼마로 잡아야할지를 알기 힘들다는 점이다. 어떤 데이터셋에서는 1.5이라는 값이 이상치이지만 어떤 데이터셋에서는 2.0라는 값을 가지고 있어도 정상 데이터일 수 있습니다. 최적의 알고리즘 성능을 얻기 위해 논문 A, B, C는 이를 해결하기 위한 방법에 대해 연구되었다. 또 다른 알고리즘 성능의 향상 방법은 섹션 \ref{sec:K-Means}의 K-Means의 경우와 같이 사용되는 데이터세트의 분포를 가우시안 분포로 바꾸는 방법이 있다.
+                
             \subsection{Isolation Forest}
                 Isolation Forest
                 
