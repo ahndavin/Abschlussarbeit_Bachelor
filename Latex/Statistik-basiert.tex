@@ -159,7 +159,72 @@
 
                 지금까지 LOF의 Funktionsweise에 대해 알아봤다. LOF의 장점으로는, 굉장히 밀집된 클러스터에서 조금만 떨어져 있어도 이상치로 탐지해준다는 점입니다. 단점은 하이퍼파라미터 값인 k를 몇으로 할지인 고질적인 문제가 있다. 그러나 경험적으로 k=10-20 \cite{Breunig00} 정도로 하는것이 좋다고한다. 그리고 threshold를 얼마로 잡아야할지를 알기 힘들다는 점이다. 어떤 데이터셋에서는 1.5이라는 값이 이상치이지만 어떤 데이터셋에서는 2.0라는 값을 가지고 있어도 정상 데이터일 수 있습니다. 최적의 알고리즘 성능을 얻기 위해 논문 A, B, C는 이를 해결하기 위한 방법에 대해 연구되었다. 또 다른 알고리즘 성능의 향상 방법은 섹션 \ref{sec:K-Means}의 K-Means의 경우와 같이 사용되는 데이터세트의 분포를 가우시안 분포로 바꾸는 방법이 있다.
                 
-            \subsection{Isolation Forest}
-                Isolation Forest
+            \subsection{Isolation Forest (iForest)}
+                Isolation Forest 알고리즘을 구축한 논문 A의 저자는 이상치가 'few and different'한 데이터 인스턴스라고 정의한다. 이러한 속성은 이상 현상이 격리라는 메커니즘에 취약하다는 것을 보여준다. 해당 논문에서는 통계, 또는 거리나 밀도를 측정 하지 않고 순전히 격리 개념만으로 이상 징후를 탐지하는 Isolation Forest라는 방법을 제안했다 \cite{Liu08}. 본 논문에서 격리(isolation)란 ‘인스턴스를 나머지 인스턴스와 분리하는 것’을 의미한다 \cite{Liu08}. 이상치일 수록 데이터인스턴스가 크게 벗어나 있기 때문에 Split하는 과정에서 빠르게 고립(격리와 같은 단어인지 확인!)된다. 이와 반대로 정상적인 인스턴스는 정상데이터 범위 내에 있기 때문에 Split과정을 여러번 거친 후에야 고립된다. 그림 1.1.a를 보면 이상치인 x_j는 정상데이터 범위에서 크게 벗어나 있기 때문에 몇번의 Split만으로도 쉽게 고립됨을 알 수 있다. 이와 반면에 그림 1.1.b의 x_i는 정상데이터 범위 내에 있기 때문에 많은 Split과정을 거쳐야 고립됨을 알 수 있다. 
+                그림 두개 \cite{Liu08}
+                Isolation Tree는 위 관찰에 근거하여 고안되었다. 이 kartesische Koordinatenebene를 어떠한 규칙 없이 random split을 통해 partition 하는데, 이 partition으로 생긴 모든 sub-region들이 단 하나의 데이터 인스턴스를 가지고 있을 때까지 반복하여 split을 진행한다. 이때, 어떤 region에 단 하나의 데이터 인스턴스만 존재하게 되는 상황을 "isolation"이라고 부른다. iForest의 작동 과정을 간단하게 나타내면 다음과 같다.
+
+                    1. Kartesische Koordinatenebene에 존재하는 모든 단일 인스턴스가 격리될 때까지 해당 공간을 무작위로 분할하는 binary Tree를 구성한다. 이 트리를 Isolation Tree라고 부른다.
+                    2. 하위 샘플링된(bootstrapped) 각 데이터 세트에 대한 iTrees를 구축하고 iTree들의 앙상블인 iForest를 구축한다.
+                    3. 각 데이터 인스턴스의 평균 경로 길이를 계산하고 뒤에서 정의할 anomaly score를 사용하여 이상 점수를 얻는다. 이상 점수가 높은 일부 데이터 인스턴스를 이상으로 식별한다.
+
+                논문 A에서 정의된 세가지 정의는 이 세가지 단계의 목적을 이해할 수 있도록 도와준다.
+
+                정의 1: (Isolation Tree (iTree))
+                    Der Isolation Tree ist ein binärer Suchbaum. T_l sei ein externer Knoten ohne Kindknoten für den Knoten T des iForest und sei T_r ein interner Knoten mit genau zwei Kindknoten.
+
+                    Isolation Tree는 하나의 binärer Suchbaumd(BST)와 같은 구조를 보이며, Isolation Tree의 노드 T에 대해 자식이 없는 외부 노드를 T_l 정확히 두 개의 자식 노드를 갖고 있는 내부 노드를 T_r이라고 하자. n개의 인스턴스를 가진 데이터세트 X=(1, 2, n)에 대해 이 알고리즘은 iTree를 구성하기 위해 임의로 하나의 Feature를 선택한 다음 선택된 Feature의 최대값과 최소값 사이의 split-value p를 임의로 선택하여 다음의 조건을 만족할 때까지 X를 재귀적으로 분할한다: (i) 절대값 X=1 일 경우; (ii) X의 모든 데이터가 동일한 값을 가질 경우; and (iii) h(x) > e, h(x)는 Path Length of a data instance x in X, e는 제한 깊이. 위의 설명을 통해 iTree는 이 Tree의 각 노드가 정확히 0개 또는 2개의 자식 노드를 갖는 proper binary tree 모델이라는 것을 알 수 있으며, 이것이 이 알고리즘의 첫번째 아이디어이다.
+
+                정의 2: (Isolation Forest)
+                    정의 1의 방법은 단 하나의 iTree에서 나온 결과에 불과하기 때문에 h(x)값을 신뢰할 수 없고, 따라서 정규화된 h(x)의 값을 찾을 필요가 있다. 이 아이디어는 여러개의 iTree의 앙상블인 Isolation Forest로 구현된다. 서브섹션 5에서 설명된 Bagging 알고리즘을 활용하여 하나의 데이터세트를 여러 개의 sub-sample로 나누고 두 인스턴스 x_i, x_j가 포함된 모든 iTrees에서 해당 인스턴스들이 isolation될 때까지 소요된 split 횟수를 정규화한 그래프는 그림 3에서 확인할 수 있다.
+                    그림 \cite{Liu08}
+                    iTree의 개수가 늘어남에 따라 average path length가 수렴하기 때문에 ensemble하면 더 robust한 모형 만들 수 있는 이점이 생긴다.
+
+                정의 3: (Anomaly score)
+                    이상 탐지 방법에는 이상 점수가 필요하다. 이를 위해 해당 논문에서는 정의 1의 h(x)값과 iTree가 BST와 같은 구조라는 것을 이용한다.
+                    
+                    iTree는 BST와 같은 구조를 갖기 때문에 외부 노드에서의 종료의 상황은 BST에서 실패한 검색의 상황과 동일하다. 따라서 iTree의 평균 경로 길이를 추정하기 위해 BST에서 아이디어를 가져올 수 있다. X=(1, 2, n)가 주어졌을 때, 논문[9]는 BST에서 실패한 검색의 평균 경로 길이를 다음과 같이 제공한다.
+                    
+                        c(n) = 2H(n - 1) - (2(n - 1)/n)
+
+                    여기서 H(i)는 Harmonic number이며 약 ln(i) + 0.5772156649(Euler-Mascheroni-Konstante)의 값을 갖는다. 인스턴스 x in X=(1, 2, n)의 이상 점수 s는 다음과 같이 정의됩니다.
+
+                        $s(x,n) = 2^\frac{-E(h(x))}{c(n)}$
+
+                    여기서 E(h(x))는 iTree들의 평균 h(x)입니다. 따라서 다음과 같은 조건이 성립합니다.
+                        E(h(x)) → c(n) 이라면, s → 0.5
+                        E(h(x)) → 0 이라면, s → 1
+                        E(h(x)) → n-1 이라면, s → 0
+
+                    s(x, n)을 이용해 E(h(x))의 값을 [0,1]로 표준화했다. E(h(x))가 클수록 anomaly score인 s(x,n)은 0에 가까워지고 E(h(x))가 작을수록 anomaly score인 s(x,n)은 1에 가까워지게 됩니다. 이 값을 기준으로 모든 데이터 포인트들의 anomaly score를 계산하여 서로 비교할 수 있게 됩니다.
+
+
+                    
+
+
+                모든 인스턴스가 구분된다고 가정한다면, iTree 모델이 완전히 성장할 경우 각 인스턴스는 외부 노드로 격리되며, 이 경우 외부 노드 수는 n개, 내부 노드 수는 n - 1 개로 구성됩니다. 따라서 총 노드 수는 2n - 1이며 시스템 자원은 n과 선형적으로 증가한다는 것을 알 수 있습니다.
+
+                2-2-1. Isolation Forest을 왜 사용할까?
+                거리, 군집기반 이상탐지 알고리즘에 비해 월등한 실행 성능 - wie viel
+                
+                전체 데이터가 아닌 데이터를 샘플링해서 사용하기 때문에 ‘Swamping’과 ‘Masking’ 문제를 예방할 수 있다.
+                    ‘Swamping’ : 정상치가 이상치에 가까운 경우 정상치를 이상치로 잘못 분류하는 현상
+                    ‘Masking’ : 이상치가 군집화되어 있으면 정상치로 잘못 분류하는 현상
+
+                다차원의 데이터셋에서 효율적으로 작동하는 이상치 제거 방법
+                Acuna04는 다변량 자료에서 다량의 이상치가 분포하
+                는 경우 가면화 현상(Masking phenomenon) 및 수렁 현상
+                (Swamping phenomenon)이 발생되며 이로 인해 이상치를 탐
+                색하기 위한 성능이 저하된다고 밝힌 바 있다. 여기서, 가
+                면화 현상이란 일부 이상치가 다른 이상치에 의해 정상치
+                로 판정되는 현상이며, 수렁 현상이란 이상치의 영향에 의
+                해 정상치가 이상치로 판단되는 현상을 말한다
+            
+
+                모형을 적합하는데 들어가는 time complexity가 선형적(linear)이다 라고 이야기합니다.
+
+                결과적으로 iForest는 서브샘플링을 활용하여 (i) 낮은 선형 시간 복잡성과 작은 메모리 요구 사항을 달성하고 (ii) 스왐핑 및 마스킹의 효과를 효과적으로 처리할 수 있습니다. 경험적 평가에 따르면 iForest는 AUC, 처리 시간 측면에서 ORCA, 단일 클래스 SVM, LOF 및 랜덤 포레스트보다 성능이 뛰어나며 마스킹 및 스왐핑 효과에 강합니다. iForest는 관련 없는 특성이 많이 포함된 고차원 문제와 교육 샘플에서 이상 현상을 사용할 수 없는 경우에도 잘 작동합니다.
+                
+                
                 
             
