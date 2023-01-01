@@ -173,7 +173,7 @@
                 정의 1: (Isolation Tree (iTree))
                     Der Isolation Tree ist ein binärer Suchbaum. T_l sei ein externer Knoten ohne Kindknoten für den Knoten T des iForest und sei T_r ein interner Knoten mit genau zwei Kindknoten.
 
-                    Isolation Tree를 하나의 binary Tree라고 가정할 떄 이것의 노드 T에 대해 자식이 없는 외부 노드를 T_l, 정확히 두 개의 자식 노드를 갖고 있는 내부 노드를 T_r이라고 하자. n개의 인스턴스를 가진 데이터세트 X=(1, 2, n)에 대해 이 알고리즘은 iTree를 구성하기 위해 임의로 하나의 Feature를 선택한 다음 선택된 Feature의 최대값과 최소값 사이의 split-value p를 임의로 선택하여 다음의 조건을 만족할 때까지 X를 재귀적으로 분할한다: (i) 절대값 X=1 일 경우; (ii) X의 모든 데이터가 동일한 값을 가질 경우; and (iii) h(x) > e, h(x)는 Path Length of a data instance x in X, e는 제한 깊이. 위의 설명을 통해 iTree는 이 Tree의 각 노드가 정확히 0개 또는 2개의 자식 노드를 갖는 proper binary tree 모델이라는 것을 알 수 있으며, 이것이 이 알고리즘의 첫번째 아이디어이다.
+                   ㅣㅂ 이것의 노드 T에 대해 자식이 없는 외부 노드를 T_l, 정확히 두 개의 자식 노드를 갖고 있는 내부 노드를 T_r이라고 하자. n개의 인스턴스를 가진 데이터세트 X=(1, 2, n)에 대해 이 알고리즘은 iTree를 구성하기 위해 임의로 하나의 Feature를 선택한 다음 선택된 Feature의 최대값과 최소값 사이의 split-value p를 임의로 선택하여 다음의 조건을 만족할 때까지 X를 재귀적으로 분할한다: (i) 절대값 X=1 일 경우; (ii) X의 모든 데이터가 동일한 값을 가질 경우; and (iii) h(x) > e, h(x)는 Path Length of a data instance x in X, e는 제한 깊이. 위의 설명을 통해 iTree는 이 Tree의 각 노드가 정확히 0개 또는 2개의 자식 노드를 갖는 proper binary tree 모델이라는 것을 알 수 있으며, 이것이 이 알고리즘의 첫번째 아이디어이다.
 
                 정의 2: (Isolation Forest)
                     정의 1의 방법은 단 하나의 iTree에서 나온 결과에 불과하기 때문에 h(x)값을 신뢰할 수 없고, 따라서 정규화된 h(x)의 값을 찾을 필요가 있다. 이 아이디어는 여러개의 iTree의 앙상블인 Isolation Forest로 구현된다. 서브섹션 5에서 설명된 Bagging 알고리즘을 활용하여 하나의 데이터세트를 여러 개의 sub-sample로 나누고 두 인스턴스 x_i, x_j가 포함된 모든 iTrees에서 해당 인스턴스들이 isolation될 때까지 소요된 split 횟수를 정규화한 그래프는 그림 3에서 확인할 수 있다.
@@ -181,13 +181,11 @@
                     iTree의 개수가 늘어남에 따라 average path length가 수렴하기 때문에 ensemble하면 더 robust한 모형 만들 수 있는 이점이 생긴다.
 
                 정의 3: (Anomaly score)
-                    이상 탐지 방법에는 이상 점수가 필요하다. 이를 위해 해당 논문에서는 정의 1의 h(x)값과 iTree가 BST와 같은 구조라는 것을 이용한다.
-                    
-                    iTree는 BST와 같은 구조를 갖기 때문에 외부 노드에서의 종료의 상황은 BST에서 실패한 검색의 상황과 동일하다. 따라서 iTree의 평균 경로 길이를 추정하기 위해 BST에서 아이디어를 가져올 수 있다. X=(1, 2, n)가 주어졌을 때, 논문[9]는 BST에서 실패한 검색의 평균 경로 길이를 다음과 같이 제공한다.
+                    이상 탐지 방법에는 이상 점수가 필요하다. 이를 위해 해당 논문에서는 정의 1의 h(x)값과 iTree가 Binary Search Tree(BST)와 같은 구조라는 것을 이용한다. iTree는 BST와 같은 구조를 갖기 때문에 외부 노드에서의 종료의 상황은 BST에서 실패한 검색의 상황과 동일하다. 따라서 iTree의 평균 경로 길이를 추정하기 위해 BST에서 아이디어를 가져올 수 있다. X=(1, 2, n)가 주어졌을 때, 논문[9]는 BST에서 실패한 검색의 평균 경로 길이를 다음과 같이 제공한다.
                     
                         c(n) = 2H(n - 1) - (2(n - 1)/n)
 
-                    여기서 H(i)는 Harmonic number이며 약 ln(i) + 0.5772156649(Euler-Mascheroni-Konstante, $\gamma$)의 값을 갖는다. 인스턴스 x in X=(1, 2, n)의 이상 점수 s는 다음과 같이 정의됩니다.
+                    여기서 H(i)는 Harmonic number이며 약 ln(i) + \gamma (Euler-Mascheroni-Konstante)의 값을 갖는다. 인스턴스 x의 이상 점수 s는 다음과 같이 정의됩니다.
 
                         $s(x,n) = 2^\frac{-E(h(x))}{c(n)}$
 
@@ -198,27 +196,6 @@
 
                     s(x, n)을 이용해 E(h(x))의 값을 [0,1]로 표준화했다. E(h(x))가 클수록 anomaly score인 s(x,n)은 0에 가까워지고 E(h(x))가 작을수록 anomaly score인 s(x,n)은 1에 가까워지게 됩니다. 이 값을 기준으로 모든 데이터 포인트들의 anomaly score를 계산하여 서로 비교할 수 있게 됩니다.
 
+                모든 인스턴스가 분리된다고 가정한다면 각 인스턴스는 외부 노드로 격리되며, 이 경우 외부 노드 수는 n개, 내부 노드 수는 n - 1 개로 구성됩니다. 따라서 총 노드 수는 2n - 1이며 Space Complexity 및 time complexity가 n과 선형적으로 증가한다는 것을 알 수 있습니다.
 
-                    
-
-
-                모든 인스턴스가 분리된다고 가정한다면, iTree 모델이 완전히 성장할 경우 각 인스턴스는 외부 노드로 격리되며, 이 경우 외부 노드 수는 n개, 내부 노드 수는 n - 1 개로 구성됩니다. 따라서 총 노드 수는 2n - 1이며 시스템 자원은 n과 선형적으로 증가한다는 것을 알 수 있습니다. time complexity 또한 선형적(linear)이다.
-
-                2-2-1. Isolation Forest을 왜 사용할까?
-                거리, 군집기반 이상탐지 알고리즘에 비해 월등한 실행 성능 - wie viel
-                
-                전체 데이터가 아닌 데이터를 샘플링해서 사용하기 때문에 ‘Swamping’과 ‘Masking’ 문제를 예방할 수 있다.
-                    ‘Swamping’ : 정상치가 이상치에 가까운 경우 정상치를 이상치로 잘못 분류하는 현상
-                    ‘Masking’ : 이상치가 군집화되어 있으면 정상치로 잘못 분류하는 현상
-
-                다차원의 데이터셋에서 효율적으로 작동하는 이상치 제거 방법
-                Acuna04는 다변량 자료에서 다량의 이상치가 분포하
-                는 경우 가면화 현상(Masking phenomenon) 및 수렁 현상
-                (Swamping phenomenon)이 발생되며 이로 인해 이상치를 탐
-                색하기 위한 성능이 저하된다고 밝힌 바 있다. 여기서, 가
-                면화 현상이란 일부 이상치가 다른 이상치에 의해 정상치
-                로 판정되는 현상이며, 수렁 현상이란 이상치의 영향에 의
-                해 정상치가 이상치로 판단되는 현상을 말한다
-            
-
-                결과적으로 iForest는 서브샘플링을 활용하여 (i) 낮은 선형 시간 복잡성과 작은 메모리 요구 사항을 달성하고 (ii) 스왐핑 및 마스킹의 효과를 효과적으로 처리할 수 있습니다.
+                Acuna04는 다변량 자료에서 다량의 이상치가 분포하는 경우 가면화 현상(Masking phenomenon) 및 수렁 현상(Swamping phenomenon)이 발생되며 이로 인해 이상치를 탐색하기 위한 성능이 저하된다고 밝힌 바 있다. 여기서, 가면화 현상이란 이상치가 군집화되어 있으면 정상치로 잘못 분류하는 현상이며, 수렁 현상이란 정상치가 이상치에 가까운 경우 정상치를 이상치로 잘못 분류하는 현상을 말한다. 하지만 해당 알고리즘은 전체 데이터를 bootstraping 프로세스를 거쳐서 사용되기 때문에 ‘Swamping’과 ‘Masking’ 문제를 예방할 수 있다.
