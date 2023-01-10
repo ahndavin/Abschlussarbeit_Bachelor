@@ -1,0 +1,49 @@
+3.3.2 Isolation Forest (iForest)
+Die Autoren von Paper [LTZ08], die den Isolation Forest-Algorithmus entwickelt haben, definieren Ausreißer als „wenige und unterschiedliche“ Dateninstanzen. Diese Eigenschaften zeigen, dass die Anomalie anfällig für einen Mechanismus namens Isolierung ist. In diesem Paper haben die Autoren eine Methode namens Isolation Forest vorgeschlagen, die Anomalien ausschließlich mit dem Konzept der Isolation erkennt, ohne Statistiken, Distanz oder Dichte zu messen [LTZ08]. In diesem Paper bedeutet Isolierung „eine Instanz von den anderen zu trennen“. Da Ausreißer stark von den normalen Instanzen abweichen, werden sie beim Splitten schnell isoliert. Da umgekehrt normale Instanzen innerhalb des normalen Datenbereichs liegen, werden sie erst isoliert, nachdem sie den Split-Prozess mehrmals durchlaufen haben. Abbildung 3.7a zeigt, dass ein Ausreißer xi durch nur weniges Splitten leicht isoliert werden kann, da er weit von dem Bereich normaler Daten liegt. Da andererseits xj in Abbildung 3.7b innerhalb des normalen Datenbereichs liegt, ist ersichtlich, dass er isoliert ist, nachdem es viele Split-Prozesse durchlaufen hat.
+
+Abbildung 3.7: Verfahren zur Ausreißererkennung beim Isolation Forest [LTZ08]
+
+Isolation Tree wurde basierend auf den obigen Beobachtungen entworfen. Diese kartesische Koordinatenebene wird durch beliebige Aufteilung ohne irgendwelche Regeln partitioniert, und die Aufteilung wird wiederholt, bis nur eine Dateninstanz auf einer durch diese Partition erzeugten Unterebene liegt. Zu diesem Zeitpunkt wird die Situation, in der nur eine Dateninstanz in einer bestimmten kartesischen Koordinatenebene existiert, als „Isolation“ bezeichnet. Bevor beschrieben wird, wie dieser Algorithmus funktioniert, wird eine in diesem Algorithmus verwendete Technik „Bootstrap-Aggregating“ beschrieben.
+
+Bootstrap Aggregation (Bagging) ist ein Meta-Algorithmus für Ensemble-Lernverfahren, der entwickelt wurde, um die Stabilität und Genauigkeit von maschinellen Lernalgorithmen zu verbessern [Bre96]. Diese Technik erstellt zufällig und wiederholt aus einem Datensatz C von Größe n neue Datensätze Ci, (i = 1, 2, · · · , m) von Größe n′. Diese durch Resampling erstellten neuen Datensätze Ci werden als „Bootstraps“ bezeichnet. Ein Datenobjekt kann in mehreren Bootstraps vorhanden sein. Das bedeutet, dass jeder Bootstrap eine Datenverteilung aufweist, die sich von der ursprünglichen Datenverteilung unterscheidet, also (positiv) verzerrt ist. Durch diese verzerrte Datenverteilung kann der Gefahr verhindert werden, dass ein nur von einem bestimmten Rauschen abhängiges Modell erstellt werden kann. Daher kann ein robustes Modell mit einem Ensemble von m-Modellen erhalten werden, die mit Bootstrap Ci trainiert wurden. Wenn das Ergebnis des Modells ein diskreter Wert ist, wird es durch das Abstimmungsverfahren aggregiert, und wenn es sich um einen kontinuierlichen Wert handelt, wird es gemittelt. In dieser Arbeit wird das Abstimmungsverfahren verwendet, da es sich um ein Modell handelt, das Ausreißer eines Datenobjekts
+bestimmt.
+
+Abbildung 3.8: Verfahren der Bootstrap Aggregation
+
+Abbildung 3.8 zeigt den Prozess von Bagging visuell. Himmelblau, rot und blau gefärbte Elemente in der ersten Zeile bedeuten Datenobjekte, die in jedem Bootstrap enthalten sind, und weiße Elemente stellen Datenobjekte dar, die von jedem Bootstrap ausgeschlossen sind. Die durchgezogene Linie in jedem Diagramm repräsentiert die Klassifikationsgrenze des Lernmodells. Obwohl die Klassifikationsgrenze einzelner Modelle in Bezug auf die gesamten Daten weniger genau ist, zeigt sich, dass das Aggregationsmodell (unten links) eine genauere Grenze für die Verteilung der gesamten Daten hat.
+
+Der Ansatz des Isolation Forest unter Verwendung der obigen Technik „Bagging“ ist wie folgt:
+
+1. Konstruiere einen binären Tree, der den Bereich beliebig aufteilt, bis jede einzelne Instanz isoliert wird, die in der Kartesischen Koordinatenebene vorhanden ist. Dieser Baum wird „Isolation Tree“ genannt. Dies ist die erste Idee dieses Algorithmus.
+
+2. Da das erste Verfahrensprozess nur ein Ergebnis aus nur einem einzelnen iTree gibt, ist das Ergebnis aus nur diesem iTree unzuverlässig, sodass es notwendig ist, ein normalisiertes Ergebnis zu finden. Diese Idee wird als Isolation Forest umgesetzt, ein Ensemble aus mehreren iTrees.
+
+3. Berechnen die durchschnittliche Pfadlänge jeder Dateninstanz und erhalten die Anomalie-Score unter Verwendung der später in Definition 3 definierten Anomalie-Score. Identifiziert einige Dateninstanzen mit hohen Anomalie-Score als Anomalien.
+
+Die drei in [LTZ08] definierten Definitionen sind eine wissenschaftliche Beschreibung der oben genannten Schritte.
+
+Definition 1: (Isolation Tree (iTree))
+Der Isolation Tree T sei ein binärer Baum. Um einen iTree zu konstruieren, wählt dieser Algorithmus beliebig ein Feature aus einem Bootstrap X = {x1, ..., xn}, der durch Bagging-Verfahren erstellt wird, und beliebig einen Split-Wert. Danach splittet der Algorithmus den Bootstrap X rekursiv, bis die folgende Bedingung erfüllt ist: (i) |X| = 1; (ii) ∀x, y ∈ X, x = y; (iii) ∀x ∈ X, h(x) > l, wobei h(x) die Pfadlänge und l die begrenzende Tiefe von T ist.
+
+Definition 2: (Isolation Forest (iForest))
+Abbildung 3.9: Konvergierung der durchschnittlichen Pfadlänge von xi und xj
+Abbildung 3.9 zeigt die Variation der Split-Anzahl, die erforderlich ist, bis die beiden Instanzen xi und xj in allen iTrees isoliert sind. Da die durchschnittliche Pfadlänge mit zunehmender Anzahl von iTree konvergiert, hat Ensemble den Vorteil, ein robusteres Modell erstellen zu können. So wird iForest als Ensemble aus mehreren iTrees aufgebaut.
+
+Definition 3: (Anomalie-Score)
+Da ein iTree die gleiche Struktur wie das BST hat, ist die Situation des Abbruchs am externen Knoten die gleiche wie bei einer fehlgeschlagenen Suche im Binary Search Tree (BST). Wir können also die Idee von BST übernehmen, um die durchschnittliche Pfadlänge von iTree zu schätzen. Bei einem gegebenen Datensatz A = {a1, ..., an} gibt das Paper [Pre99] die durchschnittliche Pfadlänge fehlgeschlagener Suchen in BST an als:
+
+c(n) = 2H(n − 1) − ( 2(n − 1)n ) (3.9)
+
+Hier ist H(i) eine harmonische Zahl und hat einen Wert von ungefähr ln(i) + γ (Euler-Mascheroni-Konstante). Der Anomalie-Score s der Instanz a ist definiert als:
+
+s(a, n) = 2 −E(h(a)) c(n) (3.10)
+
+wobei E(h(a)) das durchschnittliche h(a) von iTree ist. Daher gelten die folgenden Bedingungen.
+
+Wenn E(h(a)) → c(n), dann s → 0, 5
+Wenn E(h(a)) → 0, dann s → 1
+Wenn E(h(a)) → n − 1, dann s → 0
+
+s(a, n) normalisiert den Wert von E(h(a)) auf [0, 1]. Wenn E(h(a)) zunimmt, nähert sich der Anomalie-Score s(a, n) 0, und wenn E(h(a)) abnimmt, nähert sich der Anomalie-Score s(a, n) 1. Dieses Verfahren berechnet Anomalie-Score für alle Datenpunkte.
+
+Unter der Annahme, dass alle Instanzen sich gesplittet sind, ist jede Instanz auf einem äußeren Knoten isoliert. In diesem Fall gibt es n äußere Knoten und n − 1 innere Knoten. Die Gesamtzahl der Knoten ist also 2n − 1 und es heißt, dass die räumliche Komplexität und die zeitliche Komplexität linear mit n zunehmen. [AR04] berichtete, dass, wenn eine große Anzahl von Ausreißern in multivariaten Daten verteilt ist, das Masking-phänomen und das Swamping-phänomen auf- treten, was die Leistung bei der Suche nach Ausreißern verschlechtert. Das Masking-phänomen bezeichnet hier ein Phänomen, bei dem Ausreißer fälschlicherweise als Normalwerte klassifiziert werden, wenn sie einen einzelnen Cluster bilden und das Swamping-phänomen bezieht sich auf ein Phänomen, bei dem Normalwerte fälschlicherweise als Ausreißer klassifiziert werden, wenn Normalwerte in der Nähe von Ausreißern liegen. Da der Algorithmus jedoch Bootstraps verwendet, können Masking- und Swamping-Probleme verhindert werden.
