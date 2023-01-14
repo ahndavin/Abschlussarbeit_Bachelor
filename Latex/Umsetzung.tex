@@ -7,18 +7,37 @@
 
         표1 표2
         
-        따라서 피어슨 상관계수의 값이 0.4 이상인 pm25만을 최종 feature로 사용된다.
+        따라서 피어슨 상관계수의 값이 0.4 이상인 pm25만을 최종 feature로 사용된다. 또한 중복데이터 x개, 음수데이터 y개와 '날짜'만 존재하고 다른 Variable은 없는 z개의 데이터가 실험에서 제외되었다.
 
-        훈련 테스트 세트 같이 하는 이유
-            - 이상치가 많기때문에 테스트세트도 제거
-            - 더 많은 데이터를 이용하여 이상치를 찾기때문에 좋음
-        센서를 나누는 이유
-            Univariate Time Series Data는 Multivariate Time Series Data에서 자주 발생하는 Masking- und Swamping-Probleme을 피할수 있다. 실제로 센서를 나누지 않은 경우 SMAPE을 기준으로 평균 1.38\% 나쁜 성능을 보였다.
+        전체 데이터세트는 훈련데이터세트와 테스트데이터세트로 나뉘어있다. 이상치탐지 알고리즘을 위해서 이를 따로 나누지 않고 하나의 큰 데이터세트로 통합한다. 휴리스틱 관점에 따라 두 데이터세트 모두 이상치가 많은것으로 판단되었고 더 많은 데이터를 사용하여 이상치를 탐지하기 때문에 이상치 검출의 성능을 높일 수 있기 때문이다. 또 한가지 생각해 볼 것은 이상치탐지를 위해 각 센서를 따로 나누어서 탐지를 진행 할지, 모든 센서에 대해 한번에 탐지를 진행할지에 대한 것이다. 다시말해, Univariate Time Series Data로 사용할 것인지, Multivariate Time Series Data로 사용할 것인지이다. 이 Arbeit에서는 센서를 나눔으로써 해당 데이터 세트를 Univariate Time Series Data로 사용한다. Univariate Time Series Data는 Multivariate Time Series Data에서 자주 발생하는 Masking- und Swamping-Probleme을 피할수 있기 때문이다. 실제로 센서를 나누지 않고 실험 한 결과, 센서를 나누었을 때보다 SMAPE을 기준으로 평균 1.38\% 나쁜 성능을 보였다.
 
     알고리즘 구현
-        라이브러리(아다꺼랑 디플롬꺼 볼 것)
+        Das Forschungsfeld entwickelt sich aufgrund seiner Robustheit, Offenheit, Benutzerfreundlichkeit und verfügbaren Open-Source-Material um Python herum. Daher wurde Python als Programmiersprache für die Umsetzung der in Abschnitt \ref{sec:Methoden} beschriebenen Methoden gewählt. Wie in Tabelle 4 gezeigt, wurde Open-Source-Material zur Implementierung von z-Score, K-Means, LOF und iForest verwendet und IQR wurde in Python selbst implementiert. Die für zusätzliche Arbeit verwendeten Bibliotheken sind in Tabelle 4.2 aufgelistet.
+        
+        표4, 표 4.2
+
+        다음은 이 다섯가지 알고리즘의 하이퍼파라미터 설정 및 그들에게 데이터세트를 넘겨주기 전 그들의 성능을 높이기 위해 진행했던 작업에 대해 설명된다.
+
+        IQR: Als IQR-Koeffizient wird der Wert $1,5$ gesetzt, der $\pm3\sigma$ in der Gaußschen Verteilung entspricht.
+
+        z-Score: \cite{Killourhy09}에서 제안한 Threshold값인 1.96을 z-Score의 하이퍼파라미터로 사용됐다. 또한 이 알고리즘의 경우 Abschnitt \ref{sec:z-Score}에서 언급한 것처럼 해당 데이터세트가 가우시안 분포일 때 가장 좋은 성능을 얻기 때문에 Log-Funktion을 사용하여 해당 데이터세트의 분포를 변경했다. 그림 2는 종속변수 '$pm25$'의 분포와 probability에 대해 Log-Funktion을 이용한 변화를 보여준다. probability그래프에서 빨간 선 주변에 데이터가 많이 존재할수록 해당 데이터세트는 가우시안분포에 가깝다고 볼 수 있다. 마지막으로, Standardisierung을 하여 또 한번 알고리즘의 성능 향상을 도왔다.
+        Als Hyperparameter von z-Score wurde das von \cite{Killourhy09} vorgeschlagene Threshold von $1,96$ verwendet. Außerdem wird für diesen Algorithmus, wie in Abschnitt \ref{sec:z-Score} erwähnt, die beste Leistung erzielt, wenn der Datensatz eine Gaußsche Verteilung hat, also wurde die Verteilung des Datensatzes mit der Log-Funktion geändert. Abbildung 2 zeigt die Änderung der Verteilungs und der Probability der abhängigen Variablen '$pm25$' mittels Log-Funktion. Je mehr Daten um die rote Linie im Probability-Diagramm vorhanden sind, desto näher liegt der Datensatz an der Gaußschen Verteilung. Schließlich wurde eine Standardisierung durchgeführt, die am Ende des Abschnittes \ref{sec:z-Score} beschrieben ist, um die Leistung des Algorithmus noch zu verbessern.
+        (Ich habe kein dazu entsprechende deutsches Wort gefunden)
+
+        K-Means: 그림 5는 Abschnitt \ref{sec:K-Means}에서 설명된 Elbow-Methode를 이용하여 해당 데이터세트에서 가장 적절한 K 값을 보여준다. 해당 메소드에 따르면 K=3일때가 가장 적절하다고 판단하지만 실제 하이퍼파라미터 K값은 휴리스틱방법을 통해 4로 설정했다. 이 알고리즘 또한 정규화를 필요로 했기에 이 또한 수행했다.
+        Abbildung 5 zeigt den am besten geeigneten $K$-Wert im Datensatz unter Verwendung der Elbow-Methode, die in Abschnitt \ref{sec:K-Means} beschrieben ist. Gemäß der Methode wird $K = 3$ als am geeignetsten angesehen, aber der eingestellte Wert des Hyperparameters $K$ wird durch ein heuristisches Verfahren auf $4$ gesetzt, wobei der Ergebniswert dieser Methode als Hinweis verwendet wird. Dieser Algorithmus erfordert auch eine Standardisierung, also wurde dies auch getan.
+        또한 이 알고리즘은 원래 이상치탐지를 위한 알고리즘이 아니기 때문에 추가적으로 임계값을 설정해야 한다. 이 논문에서는 
+
+        LOF: 
+
+
+
+
+        모든 알고리즘의 마지막은 시각화
+        시간당으로 변환
+            평균 10.3초 단위로 수집된 데이터를 한 시간 단위로 평균을 내어 변환함으로써 처리해야 하는 데이터의 양을 줄이고 각 데이터의 신빙성을 높였다.
+        Der oben beschriebene Code wurde auf Google Colab mit einem Intel(R) Xeon(R) und 12GB Arbeitsspeicher implementiert und getestet. In diesem System wurde Python in der Version 3.8.16 verwendet.
 
     모델 설명 짧게
         여긴 내 분야 아니니까 짧게
-        평균 10.3초 단위로 수집된 데이터를 한 시간 단위로 평균을 내어 변환함으로써 처리해야 하는 데이터의 양을 줄이고 각 데이터의 신빙성을 높였다.
-        전체 데이터세트 중 학습데이터는 2020년 09월 01일부터 2021년 08월 31일까지이며, p개의 데이터 중에 중복, 결측 및 음수의 데이터를 제외한 q개의 데이터를 사용 하였고, 평가데이터에는 2021년 09월 01일부터 2022년 08월 31일까지이며, i개의 데이터 중 위와 같은 이유로 제거된 데이터를 제외한 k개의 데이터를 이용하였다.
+        전체 데이터세트 중 학습데이터는 2020년 09월 01일부터 2021년 08월 31일까지 i개의 데이터이며 test데이터에는 2021년 09월 01일부터 2022년 08월 31일까지 j개의 데이터가 사용되었다.
