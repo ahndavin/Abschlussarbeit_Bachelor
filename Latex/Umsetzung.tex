@@ -22,22 +22,55 @@
 
         z-Score: \cite{Killourhy09}에서 제안한 Threshold값인 1.96을 z-Score의 하이퍼파라미터로 사용됐다. 또한 이 알고리즘의 경우 Abschnitt \ref{sec:z-Score}에서 언급한 것처럼 해당 데이터세트가 가우시안 분포일 때 가장 좋은 성능을 얻기 때문에 Log-Funktion을 사용하여 해당 데이터세트의 분포를 변경했다. 그림 2는 종속변수 '$pm25$'의 분포와 probability에 대해 Log-Funktion을 이용한 변화를 보여준다. probability그래프에서 빨간 선 주변에 데이터가 많이 존재할수록 해당 데이터세트는 가우시안분포에 가깝다고 볼 수 있다. 마지막으로, Standardisierung을 하여 또 한번 알고리즘의 성능 향상을 도왔다.
         Als Hyperparameter von z-Score wurde das von \cite{Killourhy09} vorgeschlagene Threshold von $1,96$ verwendet. Außerdem wird für diesen Algorithmus, wie in Abschnitt \ref{sec:z-Score} erwähnt, die beste Leistung erzielt, wenn der Datensatz eine Gaußsche Verteilung hat, also wurde die Verteilung des Datensatzes mit der Log-Funktion geändert. Abbildung 2 zeigt die Änderung der Verteilungs und der Probability der abhängigen Variablen '$pm25$' mittels Log-Funktion. Je mehr Daten um die rote Linie im Probability-Diagramm vorhanden sind, desto näher liegt der Datensatz an der Gaußschen Verteilung. Schließlich wurde eine Standardisierung durchgeführt, die am Ende des Abschnittes \ref{sec:z-Score} beschrieben ist, um die Leistung des Algorithmus noch zu verbessern.
-        (Ich habe kein dazu entsprechende deutsches Wort gefunden)
 
-        K-Means: 그림 5는 Abschnitt \ref{sec:K-Means}에서 설명된 Elbow-Methode를 이용하여 해당 데이터세트에서 가장 적절한 K 값을 보여준다. 해당 메소드에 따르면 K=3일때가 가장 적절하다고 판단하지만 실제 하이퍼파라미터 K값은 휴리스틱방법을 통해 4로 설정했다. 이 알고리즘 또한 정규화를 필요로 했기에 이 또한 수행했다.
-        Abbildung 5 zeigt den am besten geeigneten $K$-Wert im Datensatz unter Verwendung der Elbow-Methode, die in Abschnitt \ref{sec:K-Means} beschrieben ist. Gemäß der Methode wird $K = 3$ als am geeignetsten angesehen, aber der eingestellte Wert des Hyperparameters $K$ wird durch ein heuristisches Verfahren auf $4$ gesetzt, wobei der Ergebniswert dieser Methode als Hinweis verwendet wird. Dieser Algorithmus erfordert auch eine Standardisierung, also wurde dies auch getan.
-        또한 이 알고리즘은 원래 이상치탐지를 위한 알고리즘이 아니기 때문에 추가적으로 임계값을 설정해야 한다. 이 논문에서는 
+        K-Means: 그림 5는 Abschnitt \ref{sec:K-Means}에서 설명된 Elbow-Methode를 이용하여 해당 데이터세트에서 가장 적절한 K 값을 보여준다. 해당 메소드에 따르면 K=3일때가 가장 적절하다고 판단하지만 실제 하이퍼파라미터 K값은 휴리스틱방법을 통해 4로 설정했다. 이 알고리즘 또한 정규화를 필요로 했기에 이 또한 수행했다. 마지막으로 이 알고리즘은 원래 이상치탐지를 위해 고안된 알고리즘이 아니기 때문에 추가적으로 임계값을 설정하고 이 임계값을 초과하는 인스턴스를 제거해야 한다. 이 연구에서 고안된 방법은 Algorithmus 1과 같다.
+        Abbildung 5 zeigt den am besten geeigneten $K$-Wert im Datensatz unter Verwendung der Elbow-Methode, die in Abschnitt \ref{sec:K-Means} beschrieben ist. Gemäß der Methode wird $K = 3$ als am geeignetsten angesehen, aber der eingestellte Wert des Hyperparameters $K$ wird durch ein heuristisches Verfahren auf $4$ gesetzt, wobei der Ergebniswert dieser Methode als Hinweis verwendet wird. Dieser Algorithmus erfordert auch eine Standardisierung, also wurde dies auch getan. Da dieser Algorithmus ursprünglich nicht für die Ausreißererkennung ausgelegt ist, muss schließlich zusätzlich ein Threshold gesetzt und Instanzen, die diesen Threshold überschreiten, entfernt werden. Die in dieser Arbeit verwendte Methode ist im Algorithmus 1.
 
-        LOF: 
+        Algorithmus 1
+        function entfernen_anomalie(D, c);
+        input: D Datensatz und c Threshold(contamination)
+        output: D
+
+        Sortiere die Daten in Datensatz D nach a_score in der Reihenfolge des höchsten Werts
+        (jeder Datei in diesem Datensatz hat eigenes a_score)
+
+        while i==len(D)*c do:
+            löschen(D_i)
+            i++
+        end
+
+        return D
+
+        임계값으로 c (contamination) 변수를 'entfernen_anomalie' 함수의 파라미터로 받고 전체 데이터세트 D의 인스턴스를 a_score를 기준으로 높은 값 순으로 정렬한 후 첫번째 인덱스부터 D * c번째 인덱스까지 제거한다.
+
+        LOF: k값으로 \cite{Breunig00}에서 제안한 값 20을 사용했다. $LOF_k(p)$의 값은 휴리스틱 방법을 사용해 정수 2로 설정했다. 이 알고리즘 또한 데이터에 대한 표준화를 진행할 경우 더 좋은 성능을 보여주기 떄문에 표준화를 진행했다.
+
+        iForest: scikit-learn에서 제공하는 Isolation Forest 알고리즘의 임계값은 위 K-Means에서 자체 정의한 임계값과 같은 방식을 사용한다. 따라서 휴리스틱 방법에 의해 contamination값을 0.04로 설정했다. 이 알고리즘은 표준화를 요구하지 않기 때문에 기존데이터를 그대로 사용한다.
+
+        위의 모든 알고리즘의 마지막은 각각 성질에 최적화된 시각화를 제공한다. 또한 평균 10.3초 단위로 수집된 데이터를 한 시간 단위로 평균을 내어 변환함으로써 처리해야 하는 데이터의 양을 줄이고 각 데이터의 신빙성을 높였다.- Indem die in durchschnittlich jeden 10,3 Sekunden gesammelten Daten durch eine Mittelung um eine Stunde umgewandelt wird, kann die verarbeitende Datenmenge reduziert und die Zuverlässigkeit jeder Daten erhöht werden.
 
 
 
-
-        모든 알고리즘의 마지막은 시각화
-        시간당으로 변환
-            평균 10.3초 단위로 수집된 데이터를 한 시간 단위로 평균을 내어 변환함으로써 처리해야 하는 데이터의 양을 줄이고 각 데이터의 신빙성을 높였다.
         Der oben beschriebene Code wurde auf Google Colab mit einem Intel(R) Xeon(R) und 12GB Arbeitsspeicher implementiert und getestet. In diesem System wurde Python in der Version 3.8.16 verwendet.
 
     모델 설명 짧게
-        여긴 내 분야 아니니까 짧게
-        전체 데이터세트 중 학습데이터는 2020년 09월 01일부터 2021년 08월 31일까지 i개의 데이터이며 test데이터에는 2021년 09월 01일부터 2022년 08월 31일까지 j개의 데이터가 사용되었다.
+        
+        The function "feature_engine" is used to prepare the data for training a fine dust prediction model. The function takes in a DataFrame of fine dust data as input, and processes it by performing several operations on it. The processed data is returned as a new DataFrame, which can then be used to train the prediction model. The specific operations performed by the function include:
+
+        - Grouping the data by date and calculating the mean fine dust level for each date.
+        - Creating a new column "pmshift", which is a shifted version of the original fine dust level column.
+        - Grouping the data by date and calculating the mean precipitation level for each date.
+        - Using the "rolling_day_agg" function to calculate rolling averages of precipitation levels for different time periods of the day, and adding these columns to the DataFrame.
+        - Merging the above columns with the original DataFrame.
+        - Finally, It returns the processed DataFrame containing new features for training the model
+        
+        Shifting the values of the fine dust level column by one time step, allows the model to take into account the previous day's fine dust level when making predictions for the current day. This is because the fine dust levels on a given day may be influenced by the levels on the previous day. By including this information as a feature in the training data, the model can potentially make more accurate predictions.
+        
+        Splitting the day into different time periods and calculating rolling averages of precipitation levels for those periods is done to give the model more detailed information about how precipitation levels have changed over time. By providing the model with this information, it can potentially make more accurate predictions. The different time periods chosen for this function are "07:00" to "12:00", "12:30" to "16:00" and "16:00" to "20:00" . It's done to consider the effect of precipitation level on fine dust level during different time of the day. Precipitation in the morning may have a different effect on fine dust levels than precipitation in the afternoon or evening. By including this information as a feature in the training data, the model can potentially make more accurate predictions.
+        
+        Some possible additional questions that could be asked about this code include:
+        How the regen column can be used in the model, and how it's related to the fine dust level?
+        
+        Regarding the answer:
+        Regen column, which represents the precipitation level, can be used in the model as a feature, it's a factor affecting the fine dust level, by including this information as a feature in the training data, the model can potentially make more accurate predictions, because precipitation can affect the fine dust level.
+        전체 데이터세트 중 학습데이터는 2020년 09월 01일부터 2021년 08월 31일까지 i개의 데이터이며 test데이터에는 2021년 09월 01일부터 2022년 08월 31일까지 j개의 데이터가 사용되었다. 5개의 센서중 하나는 학습데이터에만 존재하기 떄문에 평가단계에서는 제외됩니다.
