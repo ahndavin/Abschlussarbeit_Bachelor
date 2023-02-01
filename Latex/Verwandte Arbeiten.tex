@@ -7,7 +7,6 @@
 최신 논문을 우선적으로 선보이도록 합니다. 관련 분야에서 최신 연구를 계속 추적하여 최신 논문을 우선적으로 제시하는 것이 좋습니다.
 선보일 논문은 일반적으로 다양한 접근방식, 실험방법, 얻은 결과 등을 제시하는 것이 좋습니다.
 관련논문을 선보일 때는 주요 논문부터 선보이며, 이를 설명하는 글도 함께 작성하는 것이 좋습니다.
-최근 5~10년간의 논문만 선별해서 사용하는 것이 좋습니다.
 참조하는 논문을 정리하여 구조적으로 정리하는 것이 좋습니다.
 일반적으로 관련논문 챕터는 아래와 같은 양식으로 작성됩니다.
 논문 제목
@@ -17,26 +16,24 @@
 
 관련 연구: 이전 연구들을 요약하여 설명합니다.
 나의 연구: 연구 목적, 방법, 결과, 결론 등을 설명합니다.
-결론: 이론적 배경과 관련 연구를 바탕으로 나의 연구의 의의와 제안을 설명합
+결론: 이론적 배경과 관련 연구를 바탕으로 나의 연구의 의의와 제안을 설명
+
 
 
 \chapterpage\chapter{Verwandte Arbeiten}
-    이 장에서는 동일한 주제에 대한 관련논문을 분석한다. 해당 연구에 대한 사용은 널리 연구된 문제이지만 하는 것은 연구 현장에서 비교적 새로운 주제입니다.
-    
-    a의 논문 A에서는 Kriging Interpolation을 사용하여 이상치를 탐지한 후 미세먼지 예측모델의 성능 변화를 분석한다.
+    Incremental Outlier Detection in Air Quality Data Using Statistical Methode
+        Streambasierte Anomalieerkennung ist sowohl material- als auch zeitaufwändig. Um dies anzugehen, schlagen die Autoren ein Framework vor, das bei der kontinuierlichen Analyse von Datenströmen von Feinstaubsensoren eine statistische Methode zur Erkennung von Ausreißern verwendet. Die Autoren haben fünf statistische Verfahren (Z-Score, IQR, Grubb's Test, Hampel's Test, Tietjen-Moore Test) zur Erkennung von Ausreißern vergliechen und festgestellt, dass sie in der Lage sind, den Datenstrom zu analysieren. Der Leistungsunterschied zwischen der Verwendung der Methoden in einem inkrementellen Modus und den vollständigen Daten beträgt nicht mehr als 4\%. Diese Methoden können auch in kostengünstigen Analysezentren implementiert werden und erfordern keine großen Rechenressourcen, was sie für Entwicklungsländer zugänglich macht. Allerdings müssen die Methoden für höherdimensionale Daten und für hochvolumige und Hochgeschwindigkeitsdaten evaluiert werden.
 
+    Outlier detection using isolation forest and local outlier factor
+        Der Artikel beschreibt eine zwei-Layer progressive Ensemble-Methode zur Ausreißererkennung, die die Stärken von iForest und LOF kombiniert. Die Methode verwendet iForest, um einem Datensatz schnell zu scannen und die scheinbar normalen Daten zu beschneiden, wodurch ein Ausreißerkandidaten von dem Datensatz generiert wird. Der Ausreißerkoeffizient wird dann eingeführt, um die Pruning-Genauigkeit weiter zu verbessern. Dann wird LOF angewendet, um den Datensatz weiter zu untersuchen und daher Ausreißer genauer zu erkennen. Die vorgeschlagene Ensemble-Methode übertrifft die bestehende Methoden, iForest, LOF, K-LOF und R1SVM, in Bezug auf Pruning-Effizienz, Genauigkeit und Zeitaufwand.
+            R1SVM: arah Erfani, Mahsa Baktashmotlagh, Sutharshan Rajasegarar,Shanika Karunasekera, and Chris Leckie. 2015 R1SVM: A ran-domised nonlinear approach to large-scale anomaly detection.(2015).
+            K-LOF: Khaled Ali Othman, Md Nasir Sulaiman, Norwati Mustapha, andNurfadhlina Mohd Sharef. 2017. Local Outlier Factor in Rough K-Means Clustering.PERTANIKA JOURNAL OF SCIENCEAND TECHNOLOGY25 (2017), 211–222.
 
-    "Deep Anomaly Detection for Time Series Forecasting" von Wei Wei, Xiaohui Liu, Xingjian Shi, Hanjun Dai (2020)
-    "LSTM-based Encoder-Decoder for Multi-Sensory Anomaly Detection" von Wenqiang Feng, Xingjian Shi, Dit-Yan Yeung (2018)
-    "Time Series Anomaly Detection with Convolutional Autoencoder and Long-Short Term Memory" von Yuhan Liu, Bo Liu, Jun Liu (2019)
-    "Anomaly Detection in Time Series Data Using Deep Belief Networks" von Ahmed H. Tawfik, Osama A. Mohammed (2017)
-    
-    "Improved Outlier Detection in Time Series Data Using Seasonality Information" von B. E. Liu et al., veröffentlicht in "IEEE Transactions on Knowledge and Data Engineering" im Jahr 2019.
+    Evaluation von Ausreißer-Behandlung und Auswirkungen von Umwelteinflüssen auf Feinstaub-Analysen
+        In dieser Arbeit wird untersucht, wie sich räumliche und zeitliche Ausreißer auf die Kriging-Interpolation von Feinstaubdaten auswirken. Es wurde gezeigt, dass das Entfernen von Ausreißern einen positiven Effekt hat, aber diese Studie beschränkt sich auf kleine Bereiche und es ist noch zu evaluieren, wie wirksam das Entfernen von Ausreißern für größere Bereiche ist.
 
-    "Deep Convolutional Neural Networks for Outlier Detection in Multivariate Time Series Data" von X. Zhao et al., veröffentlicht in "IEEE Transactions on Neural Networks and Learning Systems" im Jahr 2020.
-
-    "Anomaly Detection in Time Series Data Using Deep Learning Models" von J. Kim et al., veröffentlicht in "Expert Systems with Applications" im Jahr 2021.
-
-    "Outlier Detection in Multivariate Time Series Data Based on Deep Auto-encoders" von Y. Gong et al., veröffentlicht in "Neural Computing and Applications" im Jahr 2020.
-
-    "Ensemble Deep Learning for Time Series Outlier Detection" von S. N. Balakrishnan et al., veröffentlicht in "Knowledge-Based Systems" im Jahr 2022.
+    Improvement of PM Forecasting Performance by Outlier Data Removing
+        Der bestehende IQR-Ansatz beurteilt Daten zu hochkonzentriertem Feinstaub als Ausreißer und entfernt diese. Dies führt zu einem Problem, da das Modell, das mit dem durch den IQR gefilterten Datensatz trainiert wurde, keine Vorhersagen für hochkonzentrierten Feinstaub machen kann. Um dieses Problem zu lösen, wurde im vorliegenden Artikel ein modifizierter IQR vorgestellt. Die Leistung von einem Modell mit Ausreißerentfernung wurde mit einem anderen Modell ohne Ausreißerentfernung verglichen, wobei eine bessere Leistung des Modells mit Ausreißerentfernung bei Vorhersagen hoher Konzentrationen in langfristigen Prognosen festgestellt wurde. Bei einigen Metriken wurde jedoch eine Abnahme der Genauigkeit beobachtet, was weitere Untersuchungen erforderlich sind.
+        
+    K-Means-based isolation forest
+        Dieser Artikel stellt einen neuen Ansatz für die Ausreißererkennung K-Means-Based iForest, der es ermöglicht, einen Entscheidungsbaum basierend auf vielen Zweigen zu erstellen, im Gegensatz zu nur zwei in der ursprünglichen Methode. Das K-Means wird verwendet, um die Anzahl der Unterteilungen in jedem Entscheidungsbaumknoten vorherzusagen. Die Ergebnisse zeigen die Effektivität und Genauigkeit der vorgeschlagenen Methode in verschiedenen Arten von Datensätzen, darunter geografische Punkte, Transportinformationen und gemischte Daten.
